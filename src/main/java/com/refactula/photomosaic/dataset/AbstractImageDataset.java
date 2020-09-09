@@ -2,13 +2,28 @@ package com.refactula.photomosaic.dataset;
 
 public abstract class AbstractImageDataset implements ImageDataset {
 
-    private final int size;
-    private final int imageWidth;
-    private final int imageHeight;
+    private int size;
+    private int imageWidth;
+    private int imageHeight;
+
+    public AbstractImageDataset() {
+    }
 
     public AbstractImageDataset(int size, int imageWidth, int imageHeight) {
         this.size = size;
         this.imageWidth = imageWidth;
+        this.imageHeight = imageHeight;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
+    }
+
+    public void setImageWidth(int imageWidth) {
+        this.imageWidth = imageWidth;
+    }
+
+    public void setImageHeight(int imageHeight) {
         this.imageHeight = imageHeight;
     }
 

@@ -1,7 +1,6 @@
 package com.refactula.photomosaic.dataset;
 
 import com.google.common.collect.ImmutableList;
-import com.refactula.photomosaic.image.AbstractImage;
 import com.refactula.photomosaic.image.Image;
 
 import java.io.IOException;

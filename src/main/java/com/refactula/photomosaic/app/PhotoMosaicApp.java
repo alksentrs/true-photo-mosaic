@@ -1,8 +1,8 @@
 package com.refactula.photomosaic.app;
 
-import com.refactula.photomosaic.dataset.FileDataset;
 import com.refactula.photomosaic.dataset.ImageDataset;
 import com.refactula.photomosaic.dataset.InMemoryDataset;
+import com.refactula.photomosaic.dataset.LocalImageDataset;
 import com.refactula.photomosaic.image.*;
 import com.refactula.photomosaic.index.AverageColorIndex;
 import com.refactula.photomosaic.utils.progress.PeriodicEvent;
@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.refactula.photomosaic.app.Settings.*;
 import static com.refactula.photomosaic.image.ColorChannel.*;
 
 public class PhotoMosaicApp {
@@ -36,7 +35,7 @@ public class PhotoMosaicApp {
         System.out.println("Index loaded");
 
         System.out.println("Creating tiles dataset...");
-        tilesDataset = FileDataset.forFile("dataset.bin", TILES_COUNT, TILE_WIDTH, TILE_HEIGHT);
+        tilesDataset = new LocalImageDataset("imageSet");
         System.out.println("Dataset created");
 
         AwtImage userImage = AwtImage.readFromResource("image.jpg");
@@ -48,8 +47,8 @@ public class PhotoMosaicApp {
 
     private static ArrayImage generate(AwtImage userImage, int maxCandidates, boolean precise) throws IOException {
         TimeMeter timeMeter;
-        int cropWidth = userImage.getWidth() % TILE_WIDTH;
-        int cropHeight = userImage.getHeight() % TILE_HEIGHT;
+        int cropWidth = userImage.getWidth() % tilesDataset.getImageWidth();
+        int cropHeight = userImage.getHeight() % tilesDataset.getImageHeight();
         ArrayImage tinyUserImage = ArrayImage.createHalfSizeScale(userImage.crop(
                 cropWidth / 2,
                 cropHeight / 2,
@@ -57,8 +56,8 @@ public class PhotoMosaicApp {
                 userImage.getHeight() - cropHeight
         ));
 
-        int horizontalTiles = tinyUserImage.getWidth() / TINY_TILE_WIDTH;
-        int verticalTiles = tinyUserImage.getHeight() / TINY_TILE_HEIGHT;
+        int horizontalTiles = tinyUserImage.getWidth() / tinyDataset.getImageWidth();
+        int verticalTiles = tinyUserImage.getHeight() / tinyDataset.getImageHeight();
         AverageColor averageColor = new AverageColor();
         Random random = new Random();
 
@@ -71,7 +70,7 @@ public class PhotoMosaicApp {
         int[][] tiles = new int[horizontalTiles][verticalTiles];
         for (int tx = 0; tx < horizontalTiles; tx++) {
             for (int ty = 0; ty < verticalTiles; ty++) {
-                Image tinyTile = tinyUserImage.crop(tx * TINY_TILE_WIDTH, ty * TINY_TILE_HEIGHT, TINY_TILE_WIDTH, TINY_TILE_HEIGHT);
+                Image tinyTile = tinyUserImage.crop(tx * tinyDataset.getImageWidth(), ty * tinyDataset.getImageHeight(), tinyDataset.getImageWidth(), tinyDataset.getImageHeight());
                 averageColor.compute(tinyTile);
 
                 List<Integer> candidates = index.search(averageColor.get(RED), averageColor.get(GREEN), averageColor.get(BLUE), maxCandidates);
@@ -112,7 +111,7 @@ public class PhotoMosaicApp {
         ArrayImage outputImage = new ArrayImage(userImage.getWidth(), userImage.getHeight());
         for (int tx = 0; tx < horizontalTiles; tx++) {
             for (int ty = 0; ty < verticalTiles; ty++) {
-                Image canvas = outputImage.crop(tx * TILE_WIDTH, ty * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+                Image canvas = outputImage.crop(tx * tilesDataset.getImageWidth(), ty * tilesDataset.getImageHeight(), tilesDataset.getImageWidth(), tilesDataset.getImageHeight());
                 canvas.copyPixels(tilesDataset.get(tiles[tx][ty]));
                 readyTiles++;
 
@@ -131,7 +130,7 @@ public class PhotoMosaicApp {
 
     private static ImageDataset loadTinyDataset() throws IOException {
         ImageDataset dataset;
-        try (ImageDataset fileDataset = FileDataset.forFile("dataset-small.bin", TILES_COUNT, TINY_TILE_WIDTH, TINY_TILE_HEIGHT)) {
+        try (ImageDataset fileDataset = new LocalImageDataset("imageSetTiny")) {
             dataset = InMemoryDataset.copyOf(fileDataset);
         }
         return dataset;

@@ -6,9 +6,10 @@ It provides a flexibility to choose a trade-off between fast execution (<1 secon
 
 There are three main components, provided as separate applications:
 
-1. An application that downloads tiles for the Internet ([80 Million Tiny Images](http://groups.csail.mit.edu/vision/TinyImages/) dataset).
-2. An application that builds a search index for downloaded images.
-3. An application that uses downloaded tiles and built index to create photo mosaic for provided image.
+1. An application to read tiles from a local path (the images must have same size).
+2. An application to convert the local dataset into a small tile dataset.
+3. An application to builds a search index to the local images.
+4. An application to built index to create photo mosaic for provided image.
 
 Examples of the outputs produced by Photo Mosaic creator:
 

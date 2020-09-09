@@ -1,8 +1,7 @@
 package com.refactula.photomosaic.app;
 
-import com.refactula.photomosaic.dataset.FileDataset;
 import com.refactula.photomosaic.dataset.ImageDataset;
-import com.refactula.photomosaic.dataset.InMemoryDataset;
+import com.refactula.photomosaic.dataset.LocalImageDataset;
 import com.refactula.photomosaic.image.ArrayImage;
 import com.refactula.photomosaic.image.AverageColor;
 import com.refactula.photomosaic.image.ColorChannel;
@@ -15,7 +14,6 @@ import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.util.concurrent.TimeUnit;
 
-import static com.refactula.photomosaic.app.Settings.*;
 
 public class BuildIndexApp {
 
@@ -31,7 +29,7 @@ public class BuildIndexApp {
 
         try (
                 DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("index.bin")));
-                ImageDataset dataset = FileDataset.forFile("dataset.bin", TILES_COUNT, TILE_WIDTH, TILE_HEIGHT)
+                ImageDataset dataset = new LocalImageDataset("imageSet");
         ) {
             ArrayImage buffer = dataset.createImageBuffer();
             AverageColor averageColor = new AverageColor();

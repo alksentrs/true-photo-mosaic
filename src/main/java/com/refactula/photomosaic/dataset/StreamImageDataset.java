@@ -13,6 +13,9 @@ public abstract class StreamImageDataset extends AbstractImageDataset {
 
     private int currentIndex = -1;
 
+    public StreamImageDataset(){
+    }
+
     public StreamImageDataset(int size, int imageWidth, int imageHeight) {
         super(size, imageWidth, imageHeight);
     }
