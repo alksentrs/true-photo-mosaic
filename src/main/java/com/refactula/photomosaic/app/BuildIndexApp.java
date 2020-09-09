@@ -11,6 +11,7 @@ import com.refactula.photomosaic.utils.progress.TimeMeter;
 
 import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.util.concurrent.TimeUnit;
 
@@ -18,18 +19,18 @@ import java.util.concurrent.TimeUnit;
 public class BuildIndexApp {
 
     public static void main(String[] args) throws Exception {
-//        ImageDataset dataset;
-//        try (ImageDataset fileDataset = FileDataset.forFile("dataset.bin", TILES_COUNT, TILE_WIDTH, TILE_HEIGHT)) {
-//            dataset = InMemoryDataset.copyOf(fileDataset);
-//        }
 
         PeriodicEvent periodicLog = new PeriodicEvent(3, TimeUnit.SECONDS);
         periodicLog.update();
         ProgressEstimator progressEstimator = new ProgressEstimator(TimeMeter.start());
 
+        String pathImageDataset = "imageSet";
+        File file = new File(pathImageDataset);
+        if (!file.isDirectory()) file.mkdirs();
+
         try (
                 DataOutputStream output = new DataOutputStream(new BufferedOutputStream(new FileOutputStream("index.bin")));
-                ImageDataset dataset = new LocalImageDataset("imageSet");
+                ImageDataset dataset = new LocalImageDataset(pathImageDataset);
         ) {
             ArrayImage buffer = dataset.createImageBuffer();
             AverageColor averageColor = new AverageColor();
